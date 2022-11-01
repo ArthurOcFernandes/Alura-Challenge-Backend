@@ -6,14 +6,26 @@ import java.util.List;
 
 public class VideoDto {
 
+    private Long id;
+    private Long categoriaId;
     private String titulo;
     private String descricao;
     private String url;
 
-    public VideoDto(Video v) {
-        this.titulo = v.getTitulo();
-        this.descricao = v.getDescricao();
-        this.url = v.getUrl();
+    public VideoDto(Video video) {
+        this.id = video.getId();
+        this.titulo = video.getTitulo();
+        this.descricao = video.getDescricao();
+        this.url = video.getUrl();
+        this.categoriaId = video.getCategoriaId();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getCategoriaId() {
+        return categoriaId;
     }
 
     public String getTitulo() {

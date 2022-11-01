@@ -9,20 +9,26 @@ import javax.persistence.Id;
 public class Video {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    private Long categoriaId;
     private String titulo;
     private String descricao;
     private String url;
 
-    public Video(String titulo, String descricao, String url) {
+    public Video(String titulo, String descricao, String url, Long categoriaId) {
         this.titulo = titulo;
         this.descricao = descricao;
         this.url = url;
+        this.categoriaId = categoriaId;
     }
 
     public Video(){}
 
     public long getId() {
         return id;
+    }
+
+    public Long getCategoriaId() {
+        return categoriaId;
     }
 
     public String getTitulo() {
@@ -43,6 +49,10 @@ public class Video {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public void setCategoriaId(Long categoriaId) {
+        this.categoriaId = categoriaId;
     }
 
     public void setUrl(String url) {

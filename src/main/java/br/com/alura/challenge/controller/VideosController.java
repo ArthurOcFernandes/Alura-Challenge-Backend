@@ -6,6 +6,8 @@ import br.com.alura.challenge.controller.form.VideoForm;
 import br.com.alura.challenge.model.Video;
 import br.com.alura.challenge.repository.VideosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -25,17 +27,23 @@ public class VideosController {
 
 
     @GetMapping
-    public List<VideoDto> videos() {
-        return VideoDto.parseList(videosRepository.findAll());
+    public ResponseEntity<List<VideoDto>> videos(@RequestParam Optional<String> search) {
+
+        if(search.isEmpty()){
+            return ResponseEntity.ok(VideoDto.parseList(videosRepository.findAll()));
+        }
+
+        List<Video> videos = videosRepository.findByTituloContainingIgnoreCase(search.get());
+        if(videos.isEmpty()) return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(VideoDto.parseList(videos));
+
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<VideoDto> video(@PathVariable Long id) {
         Optional<Video> video = videosRepository.findById(id);
-        if(!video.isPresent()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(new VideoDto(video.get()));
+        return video.map(value -> ResponseEntity.ok(new VideoDto(value))).orElseGet(() -> ResponseEntity.notFound().build());
 
     }
 
@@ -43,6 +51,7 @@ public class VideosController {
     @Transactional
     public ResponseEntity<VideoDto> cadastrar(@RequestBody @Valid VideoForm form, UriComponentsBuilder uriBuilder) {
         Video video = form.converter();
+        if(video.getCategoriaId() == null) video.setCategoriaId(1L);
         videosRepository.save(video);
         URI uri = uriBuilder.path("/{id}").buildAndExpand(video.getId()).toUri();
         return ResponseEntity.created(uri).body(VideoDto.parseVideo(video));
@@ -52,22 +61,25 @@ public class VideosController {
     @Transactional
     public ResponseEntity<VideoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizacaoVideoForm form) {
         Optional<Video> optional = videosRepository.findById(id);
-        if(!optional.isPresent()){
+        if (optional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         Video video = form.atualizar(id, videosRepository);
         return ResponseEntity.ok(new VideoDto(video));
     }
 
+
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity delete(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable Long id) {
         Optional<Video> video = videosRepository.findById(id);
-        if(!video.isPresent()){
-            return ResponseEntity.notFound().build();
+
+        if (video.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nao encontrado");
         }
         videosRepository.delete(video.get());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(204).build();
     }
+
 
 }

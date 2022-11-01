@@ -2,7 +2,7 @@ package br.com.alura.challenge.controller.form;
 
 import br.com.alura.challenge.model.Video;
 import br.com.alura.challenge.repository.VideosRepository;
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
